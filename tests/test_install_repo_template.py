@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import tempfile
 import unittest
@@ -44,6 +45,7 @@ class InstallRepoTemplateTests(unittest.TestCase):
                     "analysis/code_graph/usage/query_usage.local.jsonl",
                     "analysis/code_graph/codeql-candidates.local.json",
                     "analysis/code_graph/repo_graph.local.json",
+                    "analysis/code_graph/repo_graph.local.schema.json",
                     "analysis/code_graph/repo_graph.local.summary.md",
                 ],
                 check=True,
@@ -51,6 +53,22 @@ class InstallRepoTemplateTests(unittest.TestCase):
                 text=True,
             )
             self.assertIn("analysis/code_graph/repo_graph.local.json", ignored.stdout)
+            self.assertIn("analysis/code_graph/repo_graph.local.schema.json", ignored.stdout)
+
+    def test_makefile_template_does_not_install_missing_cleanup_command(self) -> None:
+        snippet = (PLUGIN_ROOT / "assets/Makefile.snippet").read_text(encoding="utf-8")
+
+        self.assertNotIn("code-graph-clean-usage", snippet)
+        self.assertIn("code-graph-feedback", snippet)
+
+    def test_plugin_mcp_config_uses_portable_plugin_root(self) -> None:
+        payload = json.loads((PLUGIN_ROOT / ".mcp.json").read_text(encoding="utf-8"))
+        server = payload["mcpServers"]["repo-relationship-graph"]
+        command_text = " ".join([server["command"], *server["args"]])
+
+        self.assertIn("CODE_GRAPH_PLUGIN_ROOT", command_text)
+        self.assertIn("$HOME/plugins/repo-relationship-graph", command_text)
+        self.assertNotIn("/Users/mid/plugins/repo-relationship-graph", command_text)
 
     def test_existing_code_graph_makefile_target_is_conflict(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

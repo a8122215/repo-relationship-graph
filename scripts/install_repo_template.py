@@ -128,7 +128,6 @@ def makefile_change(repo: Path, target: Path, asset: Path) -> list[PlannedChange
         "code-graph-check",
         "code-graph-query",
         "code-graph-feedback",
-        "code-graph-clean-usage",
         "code-graph-mcp",
         "code-graph-smoke",
     }
