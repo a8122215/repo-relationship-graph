@@ -18,6 +18,14 @@ python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --appl
 
 Use `--update --apply` to append missing snippets without creating a new config file.
 
+For FastAPI + Vue + Playwright repos, start from the full example:
+
+```bash
+python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run --config-template full
+```
+
+For Python-only repos, use the default minimal template and disable frontend plugins.
+
 ## Daily Commands
 
 ```bash
@@ -27,6 +35,12 @@ make code-graph-query ARGS="explain <repo-relative-path>"
 ```
 
 Treat query results as candidates and verify important behavior in source before editing.
+
+## What To Commit
+
+Commit repo-owned config, generated graph artifacts, and wrapper/docs snippets unless the repository visibility makes endpoint/file inventory sensitive.
+
+Keep local usage logs, local graph comparison artifacts, and local CodeQL result files ignored.
 
 ## Local Usage Logs
 
@@ -43,3 +57,21 @@ Apply cleanup only after reviewing the dry-run output:
 ```bash
 make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply
 ```
+
+## Update And Rollback
+
+Update installed snippets with:
+
+```bash
+python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
+```
+
+After plugin updates, run:
+
+```bash
+make code-graph
+make code-graph-check
+make code-graph-smoke
+```
+
+Rollback repo-side changes by reverting `codegraph.config.toml`, Makefile/AGENTS/docs snippets, and generated artifacts together. Rollback plugin-side changes by returning the plugin checkout to the previous commit and rerunning graph checks.
