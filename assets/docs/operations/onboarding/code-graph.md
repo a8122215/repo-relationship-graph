@@ -45,19 +45,22 @@ make code-graph-query ARGS="explain <repo-relative-path>"
 Preview before writing:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run
 ```
 
 Apply after reviewing the diff:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply
 ```
 
 For a FastAPI + Vue + Playwright repository, install the full config example and then trim it to the actual layout:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply --config-template full
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply --config-template full
 ```
 
 ## Existing Repo Update
@@ -65,8 +68,10 @@ python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --appl
 If the repo already has the `# repo-relationship-graph` marker, update missing snippets with:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --apply
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --apply
 ```
 
 The installer does not overwrite an existing `codegraph.config.toml`. Review config changes manually.
@@ -103,6 +108,14 @@ FastAPI + Vue + Playwright repos should configure:
 - `plugins.frontend_api_calls.api_base`
 - `plugins.playwright.test_roots`
 - `plugins.manifests.package_files`
+
+Use the minimal config for Python-only repos or repos where JS/Vue should be inventory-only. Use the full config when the repo has frontend source, Vue Router, Playwright, or frontend API call extraction.
+
+## Known Limitations
+
+- Static Vue route component identifiers may not map to view files.
+- API wrappers and aliases may require missed-relation feedback before extraction improves.
+- E2E reachability is a static candidate, not a runtime coverage proof.
 
 ## Commit Policy
 
@@ -170,6 +183,7 @@ make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply
 ```
 
 `CODE_GRAPH_USAGE_DIR` affects cleanup as well as logging. Confirm the dry-run `usageDir` before using `--apply`.
+If all valid records in a usage file expire, `--apply` may remove that local `.jsonl` file.
 
 ## Plugin Update
 
@@ -186,7 +200,8 @@ uv run python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py 
 5. Regenerate and check graph artifacts.
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
 make code-graph
 make code-graph-check
 make code-graph-smoke

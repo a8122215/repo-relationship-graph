@@ -26,7 +26,8 @@ Local usage logs under `analysis/code_graph/usage/` are development-only artifac
 For new or updated installations, preview template changes first:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
 ```
 
 After plugin or template updates, run `make code-graph`, `make code-graph-check`, and `make code-graph-smoke`. Commit repo-owned config, Makefile/AGENTS/docs snippets, and generated graph artifacts together. Do not commit local usage logs, local graph comparison artifacts, or local CodeQL result files.

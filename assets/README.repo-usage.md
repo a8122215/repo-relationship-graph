@@ -7,13 +7,15 @@ This plugin installs repository-local templates for an AI-agent code relationshi
 From any repository root:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run
 ```
 
 Apply only after reviewing the diff:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --apply
 ```
 
 Use `--update --apply` to append missing snippets without creating a new config file.
@@ -21,7 +23,8 @@ Use `--update --apply` to append missing snippets without creating a new config 
 For FastAPI + Vue + Playwright repos, start from the full example:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run --config-template full
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --dry-run --config-template full
 ```
 
 For Python-only repos, use the default minimal template and disable frontend plugins.
@@ -63,7 +66,8 @@ make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply
 Update installed snippets with:
 
 ```bash
-python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
+uv run --project ~/plugins/repo-relationship-graph \
+  python ~/plugins/repo-relationship-graph/scripts/install_repo_template.py --update --dry-run
 ```
 
 After plugin updates, run:
