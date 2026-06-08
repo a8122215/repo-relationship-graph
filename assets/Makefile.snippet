@@ -1,20 +1,25 @@
 CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph
 
-.PHONY: code-graph code-graph-check code-graph-query code-graph-feedback code-graph-mcp code-graph-smoke
+.PHONY: code-graph-plugin-check code-graph code-graph-check code-graph-query code-graph-feedback code-graph-mcp code-graph-smoke
 
-code-graph:
+code-graph-plugin-check:
+	@test -d "$(CODE_GRAPH_PLUGIN_ROOT)" || (echo "CODE_GRAPH_PLUGIN_ROOT does not exist: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; echo "Install repo-relationship-graph or set CODE_GRAPH_PLUGIN_ROOT." >&2; exit 2)
+	@test -f "$(CODE_GRAPH_PLUGIN_ROOT)/pyproject.toml" || (echo "CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
+	@test -d "$(CODE_GRAPH_PLUGIN_ROOT)/repo_graph" || (echo "CODE_GRAPH_PLUGIN_ROOT is missing repo_graph package: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
+
+code-graph: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.generate --config codegraph.config.toml
 
-code-graph-check:
+code-graph-check: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.generate --config codegraph.config.toml --check
 
-code-graph-query:
+code-graph-query: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.query_cli --config codegraph.config.toml $(ARGS)
 
-code-graph-feedback:
+code-graph-feedback: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml $(ARGS)
 
-code-graph-mcp:
+code-graph-mcp: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.mcp_server --config codegraph.config.toml
 
 code-graph-smoke:

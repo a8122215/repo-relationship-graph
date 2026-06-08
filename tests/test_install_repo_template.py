@@ -23,6 +23,17 @@ class InstallRepoTemplateTests(unittest.TestCase):
             self.assertFalse((repo / "codegraph.config.toml").exists())
             subprocess.run(["git", "-C", str(repo), "diff", "--exit-code"], check=True)
 
+    def test_full_config_template_dry_run_uses_existing_asset(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = init_repo(Path(tmp))
+
+            result = run_installer(repo, "--dry-run", "--config-template", "full")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("codegraph.config.toml", result.stdout)
+            self.assertIn("client_package_root", result.stdout)
+            self.assertFalse((repo / "codegraph.config.toml").exists())
+
     def test_apply_is_idempotent_and_installs_ignored_local_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = init_repo(Path(tmp))
@@ -60,6 +71,15 @@ class InstallRepoTemplateTests(unittest.TestCase):
 
         self.assertNotIn("code-graph-clean-usage", snippet)
         self.assertIn("code-graph-feedback", snippet)
+
+    def test_makefile_template_checks_plugin_root_before_running(self) -> None:
+        snippet = (PLUGIN_ROOT / "assets/Makefile.snippet").read_text(encoding="utf-8")
+
+        self.assertIn(".PHONY: code-graph-plugin-check", snippet)
+        self.assertIn("CODE_GRAPH_PLUGIN_ROOT does not exist", snippet)
+        self.assertIn("CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout", snippet)
+        self.assertIn("code-graph: code-graph-plugin-check", snippet)
+        self.assertIn("code-graph-query: code-graph-plugin-check", snippet)
 
     def test_plugin_mcp_config_uses_portable_plugin_root(self) -> None:
         payload = json.loads((PLUGIN_ROOT / ".mcp.json").read_text(encoding="utf-8"))

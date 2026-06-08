@@ -78,7 +78,7 @@ def main() -> int:
 
 def plan_changes(repo: Path, *, config_template: str, update: bool) -> list[PlannedChange]:
     changes: list[PlannedChange] = []
-    config_asset = ASSETS / f"codegraph.config.{config_template}.toml"
+    config_asset = config_template_asset(config_template)
     config_target = repo / "codegraph.config.toml"
     if config_target.exists() and not update:
         changes.extend(existing_file_check(repo, config_target, config_asset.read_text(encoding="utf-8")))
@@ -98,6 +98,12 @@ def plan_changes(repo: Path, *, config_template: str, update: bool) -> list[Plan
     if readme_asset.exists() and not readme_target.exists() and not update:
         changes.append(create_change(repo, readme_target, readme_asset.read_text(encoding="utf-8")))
     return changes
+
+
+def config_template_asset(config_template: str) -> Path:
+    if config_template == "full":
+        return ASSETS / "codegraph.config.full.example.toml"
+    return ASSETS / f"codegraph.config.{config_template}.toml"
 
 
 def create_change(repo: Path, target: Path, content: str) -> PlannedChange:
