@@ -1,0 +1,48 @@
+schema_version = 1
+
+[project]
+name = "example-repo"
+root = "."
+
+[generator]
+version = "code-graph@0.1.0"
+
+[plugin]
+required_version = "repo-relationship-graph@0.1.0"
+root_env = "CODE_GRAPH_PLUGIN_ROOT"
+allow_newer_minor = true
+config_required = true
+
+[outputs]
+graph = "analysis/code_graph/repo_graph.json"
+schema = "analysis/code_graph/repo_graph.schema.json"
+summary = "analysis/code_graph/repo_graph.summary.md"
+usage_dir = "analysis/code_graph/usage"
+
+[mcp]
+default_graph = "analysis/code_graph/repo_graph.json"
+auto_reload = true
+
+[usage]
+enabled_by_default = false
+log_dir = "analysis/code_graph/usage"
+retention_days = 14
+
+[discovery]
+include_suffixes = [".py", ".toml", ".json", ".md", ".yml", ".yaml"]
+include_filenames = ["Makefile"]
+exclude_prefixes = [
+  ".git/",
+  ".venv/",
+  "__pycache__/",
+  ".pytest_cache/",
+  "analysis/code_graph/",
+]
+
+[plugins.python_ast]
+enabled = true
+internal_roots = ["src", "server", "tests", "tools"]
+
+[plugins.manifests]
+enabled = true
+package_files = ["pyproject.toml"]

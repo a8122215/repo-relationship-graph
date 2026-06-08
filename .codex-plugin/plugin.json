@@ -1,0 +1,23 @@
+{
+  "name": "repo-relationship-graph",
+  "version": "0.1.0+codex.20260608161101",
+  "description": "Codex skills and templates for repository relationship graphs.",
+  "author": {
+    "name": "mid"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Repo Relationship Graph",
+    "shortDescription": "Query and maintain repo code relationship graphs.",
+    "longDescription": "Repo Relationship Graph provides Codex skills, repository templates, and a read-only graph MCP entry for AI-agent code exploration without reading raw graph JSON.",
+    "developerName": "mid",
+    "category": "Productivity",
+    "capabilities": [
+      "skills",
+      "templates",
+      "mcp"
+    ],
+    "defaultPrompt": "Use the repository relationship graph first, then inspect only the source files needed to verify behavior."
+  },
+  "mcpServers": "./.mcp.json"
+}

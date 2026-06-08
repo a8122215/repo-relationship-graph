@@ -1,0 +1,84 @@
+schema_version = 1
+
+[project]
+name = "example-repo"
+root = "."
+artifact_repo_name = "example-repo"
+
+[generator]
+version = "code-graph@0.1.0"
+
+[plugin]
+required_version = "repo-relationship-graph@0.1.0"
+root_env = "CODE_GRAPH_PLUGIN_ROOT"
+allow_newer_minor = true
+config_required = true
+
+[outputs]
+graph = "analysis/code_graph/repo_graph.json"
+schema = "analysis/code_graph/repo_graph.schema.json"
+summary = "analysis/code_graph/repo_graph.summary.md"
+usage_dir = "analysis/code_graph/usage"
+
+[mcp]
+default_graph = "analysis/code_graph/repo_graph.json"
+auto_reload = true
+
+[usage]
+enabled_by_default = false
+log_dir = "analysis/code_graph/usage"
+retention_days = 14
+
+[discovery]
+include_suffixes = [".py", ".js", ".vue", ".toml", ".json", ".md", ".yml", ".yaml"]
+include_filenames = ["Makefile"]
+exclude_prefixes = [
+  ".git/",
+  ".venv/",
+  "__pycache__/",
+  ".pytest_cache/",
+  "node_modules/",
+  "dist/",
+  "analysis/code_graph/",
+]
+
+[plugins.python_ast]
+enabled = true
+internal_roots = ["src", "server", "tests", "tools"]
+
+[plugins.fastapi]
+enabled = true
+http_methods = ["get", "post", "put", "patch", "delete", "options", "head"]
+endpoint_node_prefix = "api"
+
+[plugins.js_vue]
+enabled = true
+client_package_root = "client"
+node_bin = "node"
+extensions = [".js", ".vue"]
+missing_runtime = "skip"
+
+[plugins.js_vue.aliases]
+"@/" = "client/src/"
+
+[plugins.vue_router]
+enabled = true
+router_files = ["client/src/router/index.js", "client/src/router/**/*.js"]
+
+[plugins.frontend_api_calls]
+enabled = true
+api_base = "/api"
+use_api_factory_names = ["useApi"]
+api_client_names = ["api", "apiClient"]
+api_url_helper_names = ["getApiUrl"]
+
+[plugins.playwright]
+enabled = true
+test_roots = ["client/e2e/"]
+
+[plugins.manifests]
+enabled = true
+package_files = ["pyproject.toml", "client/package.json"]
+
+[plugins.codeql_candidates]
+enabled = false

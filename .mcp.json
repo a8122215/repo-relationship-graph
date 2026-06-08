@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "repo-relationship-graph": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--project",
+        "/Users/mid/plugins/repo-relationship-graph",
+        "python",
+        "-m",
+        "repo_graph.mcp_server",
+        "--config",
+        "codegraph.config.toml"
+      ]
+    }
+  }
+}

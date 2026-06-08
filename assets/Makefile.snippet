@@ -1,0 +1,25 @@
+CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph
+
+.PHONY: code-graph code-graph-check code-graph-query code-graph-feedback code-graph-clean-usage code-graph-mcp code-graph-smoke
+
+code-graph:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.generate --config codegraph.config.toml
+
+code-graph-check:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.generate --config codegraph.config.toml --check
+
+code-graph-query:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.query_cli --config codegraph.config.toml $(ARGS)
+
+code-graph-feedback:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml $(ARGS)
+
+code-graph-clean-usage:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml cleanup --dry-run
+
+code-graph-mcp:
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.mcp_server --config codegraph.config.toml
+
+code-graph-smoke:
+	$(MAKE) code-graph-check
+	$(MAKE) code-graph-query ARGS="explain Makefile"
