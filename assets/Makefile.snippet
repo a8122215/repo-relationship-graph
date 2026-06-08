@@ -1,6 +1,7 @@
 CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph
+CODE_GRAPH_CLEAN_ARGS ?= --dry-run
 
-.PHONY: code-graph-plugin-check code-graph code-graph-check code-graph-query code-graph-feedback code-graph-mcp code-graph-smoke
+.PHONY: code-graph-plugin-check code-graph code-graph-check code-graph-query code-graph-feedback code-graph-clean-usage code-graph-mcp code-graph-smoke
 
 code-graph-plugin-check:
 	@test -d "$(CODE_GRAPH_PLUGIN_ROOT)" || (echo "CODE_GRAPH_PLUGIN_ROOT does not exist: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; echo "Install repo-relationship-graph or set CODE_GRAPH_PLUGIN_ROOT." >&2; exit 2)
@@ -18,6 +19,9 @@ code-graph-query: code-graph-plugin-check
 
 code-graph-feedback: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml $(ARGS)
+
+code-graph-clean-usage: code-graph-plugin-check
+	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml cleanup $(CODE_GRAPH_CLEAN_ARGS)
 
 code-graph-mcp: code-graph-plugin-check
 	uv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.mcp_server --config codegraph.config.toml

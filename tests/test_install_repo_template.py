@@ -66,10 +66,12 @@ class InstallRepoTemplateTests(unittest.TestCase):
             self.assertIn("analysis/code_graph/repo_graph.local.json", ignored.stdout)
             self.assertIn("analysis/code_graph/repo_graph.local.schema.json", ignored.stdout)
 
-    def test_makefile_template_does_not_install_missing_cleanup_command(self) -> None:
+    def test_makefile_template_installs_safe_cleanup_command(self) -> None:
         snippet = (PLUGIN_ROOT / "assets/Makefile.snippet").read_text(encoding="utf-8")
 
-        self.assertNotIn("code-graph-clean-usage", snippet)
+        self.assertIn("CODE_GRAPH_CLEAN_ARGS ?= --dry-run", snippet)
+        self.assertIn("code-graph-clean-usage", snippet)
+        self.assertIn("cleanup $(CODE_GRAPH_CLEAN_ARGS)", snippet)
         self.assertIn("code-graph-feedback", snippet)
 
     def test_makefile_template_checks_plugin_root_before_running(self) -> None:
@@ -80,6 +82,28 @@ class InstallRepoTemplateTests(unittest.TestCase):
         self.assertIn("CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout", snippet)
         self.assertIn("code-graph: code-graph-plugin-check", snippet)
         self.assertIn("code-graph-query: code-graph-plugin-check", snippet)
+
+    def test_update_adds_missing_cleanup_target_to_existing_install(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = init_repo(Path(tmp))
+            makefile = repo / "Makefile"
+            makefile.write_text(
+                "# repo-relationship-graph\n"
+                "CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph\n\n"
+                ".PHONY: code-graph\n\n"
+                "code-graph:\n"
+                "\tuv run --project \"$(CODE_GRAPH_PLUGIN_ROOT)\" python -m repo_graph.generate --config codegraph.config.toml\n",
+                encoding="utf-8",
+            )
+
+            result = run_installer(repo, "--update", "--apply")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            updated = makefile.read_text(encoding="utf-8")
+            self.assertIn("code-graph-plugin-check:", updated)
+            self.assertIn("code-graph-clean-usage:", updated)
+            self.assertIn("cleanup $(CODE_GRAPH_CLEAN_ARGS)", updated)
+            self.assertEqual(updated.count("CODE_GRAPH_PLUGIN_ROOT ?="), 1)
 
     def test_plugin_mcp_config_uses_portable_plugin_root(self) -> None:
         payload = json.loads((PLUGIN_ROOT / ".mcp.json").read_text(encoding="utf-8"))

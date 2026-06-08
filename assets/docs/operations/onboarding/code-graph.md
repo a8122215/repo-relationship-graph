@@ -35,3 +35,17 @@ make code-graph-check
 ```
 
 Include changed generated artifacts in the same commit as the source change.
+
+## Local Usage Log Cleanup
+
+Local usage and missed-relation logs are gitignored. Preview cleanup before deleting old events:
+
+```bash
+make code-graph-clean-usage
+```
+
+Apply cleanup explicitly:
+
+```bash
+make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply
+```

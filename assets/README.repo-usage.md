@@ -27,3 +27,19 @@ make code-graph-query ARGS="explain <repo-relative-path>"
 ```
 
 Treat query results as candidates and verify important behavior in source before editing.
+
+## Local Usage Logs
+
+Usage and missed-relation logs are local development artifacts under `analysis/code_graph/usage/` and should stay gitignored.
+
+Preview retention cleanup:
+
+```bash
+make code-graph-clean-usage
+```
+
+Apply cleanup only after reviewing the dry-run output:
+
+```bash
+make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply
+```

@@ -12,6 +12,20 @@ from pathlib import Path
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 ASSETS = PLUGIN_ROOT / "assets"
 MARKER = "# repo-relationship-graph"
+PLUGIN_ROOT_VAR = "CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph"
+CLEAN_ARGS_VAR = "CODE_GRAPH_CLEAN_ARGS ?= --dry-run"
+PLUGIN_CHECK_TARGET_SNIPPET = """.PHONY: code-graph-plugin-check
+
+code-graph-plugin-check:
+\t@test -d "$(CODE_GRAPH_PLUGIN_ROOT)" || (echo "CODE_GRAPH_PLUGIN_ROOT does not exist: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; echo "Install repo-relationship-graph or set CODE_GRAPH_PLUGIN_ROOT." >&2; exit 2)
+\t@test -f "$(CODE_GRAPH_PLUGIN_ROOT)/pyproject.toml" || (echo "CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
+\t@test -d "$(CODE_GRAPH_PLUGIN_ROOT)/repo_graph" || (echo "CODE_GRAPH_PLUGIN_ROOT is missing repo_graph package: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
+"""
+CLEAN_USAGE_TARGET_SNIPPET = """.PHONY: code-graph-clean-usage
+
+code-graph-clean-usage: code-graph-plugin-check
+\tuv run --project "$(CODE_GRAPH_PLUGIN_ROOT)" python -m repo_graph.usage_feedback --config codegraph.config.toml cleanup $(CODE_GRAPH_CLEAN_ARGS)
+"""
 
 
 @dataclass(frozen=True)
@@ -130,16 +144,18 @@ def existing_file_check(repo: Path, target: Path, expected: str) -> list[Planned
 
 def makefile_change(repo: Path, target: Path, asset: Path) -> list[PlannedChange]:
     target_names = {
+        "code-graph-plugin-check",
         "code-graph",
         "code-graph-check",
         "code-graph-query",
         "code-graph-feedback",
+        "code-graph-clean-usage",
         "code-graph-mcp",
         "code-graph-smoke",
     }
     existing = target.read_text(encoding="utf-8") if target.exists() else ""
     if MARKER in existing:
-        return []
+        return makefile_update_change(repo, target, existing)
     conflicting = sorted(name for name in target_names if re.search(rf"^{re.escape(name)}\s*:", existing, re.MULTILINE))
     if conflicting:
         return [
@@ -150,6 +166,29 @@ def makefile_change(repo: Path, target: Path, asset: Path) -> list[PlannedChange
             )
         ]
     return snippet_change(repo, target, asset, marker="code-graph-smoke")
+
+
+def makefile_update_change(repo: Path, target: Path, existing: str) -> list[PlannedChange]:
+    additions: list[str] = []
+    if "CODE_GRAPH_PLUGIN_ROOT" not in existing:
+        additions.append(PLUGIN_ROOT_VAR)
+    if "code-graph-plugin-check:" not in existing:
+        additions.append(PLUGIN_CHECK_TARGET_SNIPPET.rstrip())
+    if "CODE_GRAPH_CLEAN_ARGS" not in existing:
+        additions.append(CLEAN_ARGS_VAR)
+    if "code-graph-clean-usage:" not in existing:
+        additions.append(CLEAN_USAGE_TARGET_SNIPPET.rstrip())
+    if not additions:
+        return []
+    new_text = existing.rstrip() + "\n\n" + "\n\n".join(additions) + "\n"
+    return [
+        PlannedChange(
+            path=target,
+            action="append",
+            detail=unified_diff(existing, new_text, target.relative_to(repo).as_posix()),
+            new_text=new_text,
+        )
+    ]
 
 
 def snippet_change(repo: Path, target: Path, asset: Path, *, marker: str) -> list[PlannedChange]:

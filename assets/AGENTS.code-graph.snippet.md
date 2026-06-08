@@ -20,3 +20,5 @@ make code-graph-query ARGS="explain <repo-relative-path-or-node-id>"
 ```
 
 Do not read `analysis/code_graph/repo_graph.json` directly unless debugging the graph generator, schema, writer, or freshness checks.
+
+Local usage logs under `analysis/code_graph/usage/` are development-only artifacts and should remain uncommitted. Use `make code-graph-clean-usage` to preview retention cleanup, and only use `make code-graph-clean-usage CODE_GRAPH_CLEAN_ARGS=--apply` when old local events should be removed.
