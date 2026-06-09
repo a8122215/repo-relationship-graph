@@ -4,6 +4,15 @@ Repo Relationship Graph is a Codex-oriented repository relationship graph engine
 It generates deterministic, machine-readable graph artifacts for AI coding agents, then exposes
 bounded query commands and read-only MCP tools so agents do not need to read raw graph JSON.
 
+## Project Status
+
+This repository is public so it can be cloned across my own environments and inspected for
+transparency. It is not currently operated as an open-source project.
+
+At this stage there is no public support policy, contribution process, release cadence, API
+compatibility guarantee, or package distribution plan. No open-source license is granted unless a
+`LICENSE` file is added later.
+
 ## Ownership Model
 
 This repository owns only shared code and reusable templates:
@@ -26,7 +35,10 @@ The files under `assets/codegraph.config.*.toml` are templates only. Do not comm
 repo configs, generated graph artifacts, usage logs, CodeQL local results, `.env` files, or private
 repo inventory into this plugin repository.
 
-## Install Into A Repository
+## Personal Use
+
+The following commands document the intended personal workflow for installing this plugin into my
+own repositories. They are not a support commitment or an additional license grant.
 
 Clone this plugin checkout somewhere stable, usually:
 
