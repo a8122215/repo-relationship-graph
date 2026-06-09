@@ -31,8 +31,8 @@ make code-graph-query ARGS="explain <repo-relative-path-or-node-id>"
 Equivalent direct CLI:
 
 ```bash
-uv run python tools/code_graph/query_cli.py impacted <repo-relative-path>
-uv run python tools/code_graph/query_cli.py --format json explain <repo-relative-path-or-node-id>
+uv run --project "${CODE_GRAPH_PLUGIN_ROOT:-$HOME/plugins/repo-relationship-graph}" python -m repo_graph.query_cli --config codegraph.config.toml impacted <repo-relative-path>
+uv run --project "${CODE_GRAPH_PLUGIN_ROOT:-$HOME/plugins/repo-relationship-graph}" python -m repo_graph.query_cli --config codegraph.config.toml --format json explain <repo-relative-path-or-node-id>
 ```
 
 ## Workflow

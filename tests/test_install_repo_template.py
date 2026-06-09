@@ -112,7 +112,7 @@ class InstallRepoTemplateTests(unittest.TestCase):
 
         self.assertIn("CODE_GRAPH_PLUGIN_ROOT", command_text)
         self.assertIn("$HOME/plugins/repo-relationship-graph", command_text)
-        self.assertNotIn("/Users/mid/plugins/repo-relationship-graph", command_text)
+        self.assertNotIn(Path.home().as_posix(), command_text)
 
     def test_existing_code_graph_makefile_target_is_conflict(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

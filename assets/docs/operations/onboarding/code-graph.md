@@ -4,7 +4,8 @@ This repository uses `repo-relationship-graph` generated code relationship artif
 
 ## Ownership
 
-The plugin owns the shared engine and templates. This repository owns:
+The plugin owns the shared engine and templates. This repository owns the actual runtime config and
+generated artifacts:
 
 - `codegraph.config.toml`
 - `analysis/code_graph/repo_graph.json`
@@ -13,6 +14,10 @@ The plugin owns the shared engine and templates. This repository owns:
 - `analysis/code_graph/usage/*.local.jsonl`
 - Makefile wrappers
 - AGENTS/code graph operating notes
+
+`assets/codegraph.config.*.toml` in the plugin checkout are templates only. After installation, the
+repo-local `codegraph.config.toml` is the source of truth. Do not copy generated graph artifacts or
+local usage logs back into the plugin repository.
 
 Do not read raw `analysis/code_graph/repo_graph.json` during normal exploration. Use `make code-graph-query` or the read-only MCP tools.
 

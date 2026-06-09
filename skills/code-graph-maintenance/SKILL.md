@@ -38,7 +38,7 @@ git status --short
 If new files were added and are not yet tracked, stage them before relying on default graph generation, or run:
 
 ```bash
-uv run python tools/code_graph/generate.py --check --include-untracked
+uv run --project "${CODE_GRAPH_PLUGIN_ROOT:-$HOME/plugins/repo-relationship-graph}" python -m repo_graph.generate --config codegraph.config.toml --check --include-untracked
 ```
 
 ## Local Feedback

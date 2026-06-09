@@ -2,6 +2,10 @@
 
 This plugin installs repository-local templates for an AI-agent code relationship graph.
 
+The plugin repository owns the engine and reusable templates only. The consuming repository owns the
+actual `codegraph.config.toml`, generated `analysis/code_graph/` artifacts, Makefile wrappers,
+AGENTS notes, and local usage logs.
+
 ## Install Preview
 
 From any repository root:
@@ -44,6 +48,9 @@ Treat query results as candidates and verify important behavior in source before
 Commit repo-owned config, generated graph artifacts, and wrapper/docs snippets unless the repository visibility makes endpoint/file inventory sensitive.
 
 Keep local usage logs, local graph comparison artifacts, and local CodeQL result files ignored.
+
+Do not copy repo-owned config, generated graph artifacts, or local usage logs back into the plugin
+repository. `assets/codegraph.config.*.toml` are starter templates, not shared runtime config.
 
 ## Local Usage Logs
 
