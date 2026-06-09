@@ -106,8 +106,11 @@ Only templates and generic examples should match `codegraph.config` in this repo
 ## Validation
 
 ```bash
+cd ~/plugins/repo-relationship-graph
+npm ci
+
 uv run --project ~/plugins/repo-relationship-graph \
-  python -m unittest discover -s ~/plugins/repo-relationship-graph/tests -v
+  pytest -q
 
 uv run python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
   ~/plugins/repo-relationship-graph

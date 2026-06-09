@@ -13,6 +13,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 ASSETS = PLUGIN_ROOT / "assets"
 MARKER = "# repo-relationship-graph"
 PLUGIN_ROOT_VAR = "CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph"
+HOOK_TEMPLATE_VAR = "CODE_GRAPH_HOOK_TEMPLATE := $(CODE_GRAPH_PLUGIN_ROOT)/assets/pre-commit-code-graph"
 CLEAN_ARGS_VAR = "CODE_GRAPH_CLEAN_ARGS ?= --dry-run"
 PLUGIN_CHECK_TARGET_SNIPPET = """.PHONY: code-graph-plugin-check
 
@@ -20,6 +21,19 @@ code-graph-plugin-check:
 \t@test -d "$(CODE_GRAPH_PLUGIN_ROOT)" || (echo "CODE_GRAPH_PLUGIN_ROOT does not exist: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; echo "Install repo-relationship-graph or set CODE_GRAPH_PLUGIN_ROOT." >&2; exit 2)
 \t@test -f "$(CODE_GRAPH_PLUGIN_ROOT)/pyproject.toml" || (echo "CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
 \t@test -d "$(CODE_GRAPH_PLUGIN_ROOT)/repo_graph" || (echo "CODE_GRAPH_PLUGIN_ROOT is missing repo_graph package: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; exit 2)
+"""
+INSTALL_HOOK_TARGET_SNIPPET = """.PHONY: code-graph-install-hook
+
+code-graph-install-hook: code-graph-plugin-check
+\t@hook_path=$$(git rev-parse --git-path hooks/pre-commit); \\
+\tif [ -e "$$hook_path" ] || [ -L "$$hook_path" ]; then \\
+\t\techo "$$hook_path already exists; refusing to overwrite."; \\
+\t\techo "Merge $(CODE_GRAPH_HOOK_TEMPLATE) into the existing hook manually if needed."; \\
+\t\texit 1; \\
+\tfi; \\
+\tmkdir -p "$$(dirname "$$hook_path")"; \\
+\tinstall -m 0755 "$(CODE_GRAPH_HOOK_TEMPLATE)" "$$hook_path"; \\
+\techo "Installed code graph pre-commit hook at $$hook_path"
 """
 CLEAN_USAGE_TARGET_SNIPPET = """.PHONY: code-graph-clean-usage
 
@@ -152,6 +166,7 @@ def makefile_change(repo: Path, target: Path, asset: Path) -> list[PlannedChange
         "code-graph-clean-usage",
         "code-graph-mcp",
         "code-graph-smoke",
+        "code-graph-install-hook",
     }
     existing = target.read_text(encoding="utf-8") if target.exists() else ""
     if MARKER in existing:
@@ -172,12 +187,16 @@ def makefile_update_change(repo: Path, target: Path, existing: str) -> list[Plan
     additions: list[str] = []
     if "CODE_GRAPH_PLUGIN_ROOT" not in existing:
         additions.append(PLUGIN_ROOT_VAR)
+    if "CODE_GRAPH_HOOK_TEMPLATE" not in existing:
+        additions.append(HOOK_TEMPLATE_VAR)
     if "code-graph-plugin-check:" not in existing:
         additions.append(PLUGIN_CHECK_TARGET_SNIPPET.rstrip())
     if "CODE_GRAPH_CLEAN_ARGS" not in existing:
         additions.append(CLEAN_ARGS_VAR)
     if "code-graph-clean-usage:" not in existing:
         additions.append(CLEAN_USAGE_TARGET_SNIPPET.rstrip())
+    if "code-graph-install-hook:" not in existing:
+        additions.append(INSTALL_HOOK_TARGET_SNIPPET.rstrip())
     if not additions:
         return []
     new_text = existing.rstrip() + "\n\n" + "\n\n".join(additions) + "\n"

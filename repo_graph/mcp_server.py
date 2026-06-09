@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 if __package__ in {None, ""}:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from repo_graph.entrypoint_config import load_entrypoint_config, mcp_graph_path  # noqa: E402
 from repo_graph.query import CodeGraphQueryService, DEFAULT_MAX_RESULTS  # noqa: E402
@@ -16,7 +16,7 @@ from repo_graph.usage_logging import QueryUsageLogger, UsageTimer  # noqa: E402
 
 DEFAULT_PROTOCOL_VERSION = "2025-06-18"
 SUPPORTED_PROTOCOL_VERSIONS = {DEFAULT_PROTOCOL_VERSION}
-SERVER_NAME = "fitro-code-graph"
+SERVER_NAME = "repo-relationship-graph"
 SERVER_VERSION = "code-graph@0.1.0"
 
 

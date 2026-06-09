@@ -1,7 +1,8 @@
 CODE_GRAPH_PLUGIN_ROOT ?= $(HOME)/plugins/repo-relationship-graph
+CODE_GRAPH_HOOK_TEMPLATE := $(CODE_GRAPH_PLUGIN_ROOT)/assets/pre-commit-code-graph
 CODE_GRAPH_CLEAN_ARGS ?= --dry-run
 
-.PHONY: code-graph-plugin-check code-graph code-graph-check code-graph-query code-graph-feedback code-graph-clean-usage code-graph-mcp code-graph-smoke
+.PHONY: code-graph-plugin-check code-graph code-graph-check code-graph-query code-graph-feedback code-graph-clean-usage code-graph-mcp code-graph-smoke code-graph-install-hook
 
 code-graph-plugin-check:
 	@test -d "$(CODE_GRAPH_PLUGIN_ROOT)" || (echo "CODE_GRAPH_PLUGIN_ROOT does not exist: $(CODE_GRAPH_PLUGIN_ROOT)" >&2; echo "Install repo-relationship-graph or set CODE_GRAPH_PLUGIN_ROOT." >&2; exit 2)
@@ -29,3 +30,14 @@ code-graph-mcp: code-graph-plugin-check
 code-graph-smoke:
 	$(MAKE) code-graph-check
 	$(MAKE) code-graph-query ARGS="explain Makefile"
+
+code-graph-install-hook: code-graph-plugin-check
+	@hook_path=$$(git rev-parse --git-path hooks/pre-commit); \
+	if [ -e "$$hook_path" ] || [ -L "$$hook_path" ]; then \
+		echo "$$hook_path already exists; refusing to overwrite."; \
+		echo "Merge $(CODE_GRAPH_HOOK_TEMPLATE) into the existing hook manually if needed."; \
+		exit 1; \
+	fi; \
+	mkdir -p "$$(dirname "$$hook_path")"; \
+	install -m 0755 "$(CODE_GRAPH_HOOK_TEMPLATE)" "$$hook_path"; \
+	echo "Installed code graph pre-commit hook at $$hook_path"

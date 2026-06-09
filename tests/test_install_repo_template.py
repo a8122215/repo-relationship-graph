@@ -82,6 +82,8 @@ class InstallRepoTemplateTests(unittest.TestCase):
         self.assertIn("CODE_GRAPH_PLUGIN_ROOT is not a valid repo-relationship-graph checkout", snippet)
         self.assertIn("code-graph: code-graph-plugin-check", snippet)
         self.assertIn("code-graph-query: code-graph-plugin-check", snippet)
+        self.assertIn("CODE_GRAPH_HOOK_TEMPLATE := $(CODE_GRAPH_PLUGIN_ROOT)/assets/pre-commit-code-graph", snippet)
+        self.assertIn("code-graph-install-hook: code-graph-plugin-check", snippet)
 
     def test_update_adds_missing_cleanup_target_to_existing_install(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -103,6 +105,8 @@ class InstallRepoTemplateTests(unittest.TestCase):
             self.assertIn("code-graph-plugin-check:", updated)
             self.assertIn("code-graph-clean-usage:", updated)
             self.assertIn("cleanup $(CODE_GRAPH_CLEAN_ARGS)", updated)
+            self.assertIn("CODE_GRAPH_HOOK_TEMPLATE := $(CODE_GRAPH_PLUGIN_ROOT)/assets/pre-commit-code-graph", updated)
+            self.assertIn("code-graph-install-hook: code-graph-plugin-check", updated)
             self.assertEqual(updated.count("CODE_GRAPH_PLUGIN_ROOT ?="), 1)
 
     def test_plugin_mcp_config_uses_portable_plugin_root(self) -> None:

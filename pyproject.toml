@@ -14,3 +14,6 @@ include = ["repo_graph*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "unit: unit-level repo graph tests",
+]

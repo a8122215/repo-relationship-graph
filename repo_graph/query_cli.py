@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 if __package__ in {None, ""}:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from repo_graph.entrypoint_config import load_entrypoint_config, query_graph_path  # noqa: E402
 from repo_graph.query import CodeGraphQueryService, DEFAULT_MAX_RESULTS  # noqa: E402
